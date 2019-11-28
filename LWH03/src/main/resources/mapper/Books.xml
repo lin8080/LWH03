@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.lwh.dao.BooksDao">
+    <resultMap id="BaseResultMap" type="com.lwh.pojo.Bookadmin">
+         <id column="bid" property="bid" jdbcType="INTEGER" />
+         <result column="bookName" property="bookName" jdbcType="VARCHAR" />
+         <result column="author" property="author" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <select id="getBookByBid" resultMap="BaseResultMap" parameterType="com.lwh.pojo.Bookadmin">
+        select bid,bookName,author from bookadmin where bid = #{bid}
+    </select>
+
+    <select id="list" resultMap="BaseResultMap" parameterType="com.lwh.pojo.Bookadmin">
+        select * from bookadmin
+    </select>
+
+    <update id="update"  parameterType="com.lwh.pojo.Bookadmin">
+        update bookadmin
+        set
+        bookName = #{bookName},
+        author = #{author}
+        where bid = #{bid}
+    </update>
+
+    <delete id="delete" parameterType="java.lang.Integer">
+        delete
+        from
+        bookadmin
+        where bid = #{bid}
+    </delete>
+
+    <delete id="deletes" parameterType="java.lang.Integer">
+        delete
+        from
+        bookadmin
+        where bid in
+        <foreach item="item" index="index" collection="array"  open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+
+
+
+    <insert id="insert" parameterType="com.lwh.pojo.Bookadmin">
+         insert into bookadmin (
+        bid,bookName,author
+        )
+        values (#{bid,jdbcType=BIGINT}, #{bookName,jdbcType=VARCHAR}, #{author,jdbcType=VARCHAR}
+        )
+  </insert>
+
+    <insert id="saveAll" >
+        insert into bookadmin (bid,bookName,author) VALUES
+        <foreach collection="list" index="index" item="item" separator=",">
+         (
+            #{item.bid},
+            #{item.bookName},
+            #{item.author}
+         )
+        </foreach>
+  </insert>
+
+    <!-- 查询符合条件的总条数 -->
+    <select id="getTotal" parameterType="com.lwh.pojo.Bookadmin" resultType="int">
+        SELECT count(1) FROM bookadmin where 1=1
+        <if test="bid != null and bid != ''">
+            and bid=#{bid}
+        </if>
+    </select>
+    <!-- 查询符合条件的缴费信息集合 -->
+    <select id="getConsumerRecordListPage" resultMap="BaseResultMap" parameterType="com.lwh.pojo.Bookadmin">
+        SELECT * FROM bookadmin  where 1=1
+        <if test="bookName != null and bookName != ''">
+            and bookName like CONCAT('%',#{bookName},'%')
+        </if>
+        <if test="author != null and author != ''">
+            or author like CONCAT('%',#{author},'%')
+        </if>
+        LIMIT #{offset},#{limit}
+    </select>
+
+
+</mapper>
